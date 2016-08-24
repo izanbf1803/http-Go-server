@@ -7,6 +7,7 @@ import (
 	"io"
 	"io/ioutil"
     "net"
+    "net/url"
     "strings"
     "bytes"
     "strconv"
@@ -74,7 +75,7 @@ func main() {
 		logger.LogFatal("Can't listen on port %v", PORT)
 	}
 
-	logger.Log("/* Support: izanbf.es *\\	SERVER INFO", "-> SERVER STARTED!")
+	logger.Log("/* Support: izanbf.es *\\	SERVER INFO [v1.0.1]", "-> SERVER STARTED!")
 
 	for {
 		conn, err := ln.Accept()
@@ -168,18 +169,14 @@ func reqSetup(conn net.Conn, req *Request) {  //setup Request struct variables
 	reqHead := strings.Split(req.lines[0], " ")
 
 	req.typeof = reqHead[0]
-	req.path = ""
-	req.real_path = reqHead[1]
+	req.real_path, _ = url.QueryUnescape(reqHead[1])
 	req.path = BASE_PATH
 
-	if len(req.real_path) > 1 {
-		logger.Log("1", req.real_path)
+	if req.real_path != "/" {
+		req.path = req.path + req.real_path
 		req.real_path = req.real_path[1:]
-		logger.Log("2", req.real_path)
-	}
-	if len(req.path) > 1 {
-		logger.Log("3", req.path)
-		req.path = req.path + "/" + req.real_path
+		logger.Log("->", req.path)
+		logger.Log("->", req.real_path)
 	}
 
 	req.httpv = reqHead[2]
@@ -206,10 +203,7 @@ func reqSetup(conn net.Conn, req *Request) {  //setup Request struct variables
     if req.fileMode.IsDir() {	
     	req.fileType = IS_DIR
     	req.contentType = "text/html"
-    	req.dir_path = req.real_path[1:]
-    	if len(req.dir_path) > 0 {
-    		req.dir_path = req.real_path+"/"
-    	}
+    	req.dir_path = req.real_path
     }
 }
 
@@ -305,7 +299,10 @@ func listDir(req *Request) {
 
 	lines := ""
 
-	req.template["title"] = "/"+req.dir_path
+	req.template["title"] = "/"
+	if req.dir_path != "/" {
+		req.template["title"] += req.dir_path
+	}
 	req.template["files"] = ""
 	req.template["dirs"] = ""
 
@@ -340,7 +337,7 @@ func getFilesInDir(req *Request) ([]string, []string) {
 	files := make([]string, 0)
 	dirs := make([]string, 0)
 	
-	fList, _ := ioutil.ReadDir("./"+BASE_PATH+req.dir_path)
+	fList, _ := ioutil.ReadDir("./"+BASE_PATH+"/"+req.dir_path)
     for _, f := range fList {
         fName := f.Name()
         fName = strings.Replace(fName, "/", "", -1)
