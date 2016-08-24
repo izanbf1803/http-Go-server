@@ -1,0 +1,4 @@
+PORT: 80
+USE_INDEX_FILES: 1
+DIR: /www
+VAR_SYMBOL: {{,}}
