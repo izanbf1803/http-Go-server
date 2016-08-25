@@ -12,6 +12,7 @@ import (
     "bytes"
     "strconv"
     "bufio"
+    "path/filepath"
 )
 
 var FILE_BLACKLIST map[string]bool
@@ -169,14 +170,16 @@ func reqSetup(conn net.Conn, req *Request) {  //setup Request struct variables
 	reqHead := strings.Split(req.lines[0], " ")
 
 	req.typeof = reqHead[0]
+
 	req.real_path, _ = url.QueryUnescape(reqHead[1])
+	req.real_path = filepath.Clean(req.real_path)
+	req.real_path = strings.Replace(req.real_path, "\\", "/", -1)
+
 	req.path = BASE_PATH
 
 	if req.real_path != "/" {
 		req.path = req.path + req.real_path
 		req.real_path = req.real_path[1:]
-		logger.Log("->", req.path)
-		logger.Log("->", req.real_path)
 	}
 
 	req.httpv = reqHead[2]
