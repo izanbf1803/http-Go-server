@@ -13,7 +13,7 @@ type Logger struct{
 	path string
 }
 
-func (logger *Logger) Write(data []byte) {  //Write to file
+func (logger *Logger) Write(data []byte) {  // Write to file
 	var f *os.File
 	var err error
 
@@ -59,7 +59,7 @@ func (logger Logger) Init() {   //Init variables
 	d1 := strings.Repeat("-", divisorLen*2)
 	d2 := strings.Repeat("-", divisorLen/2)
 
-	divisor := fmt.Sprintf("%s\r\n\r\n%s%v%s\r\n", d1, d2, sTime, d2)
+	divisor := fmt.Sprintf("%s\n\n%s%v%s\n", d1, d2, sTime, d2)
 
 	logger.Write([]byte(divisor))
 }

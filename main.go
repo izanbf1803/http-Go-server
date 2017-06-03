@@ -1,4 +1,4 @@
-//By Izan Beltrán Ferreiro - izanbf.es
+// By Izan Beltrán Ferreiro - izanbf.es
 
 package main
 
@@ -63,7 +63,7 @@ func main() {
 	    "server/log": true,
 	    "server/config": true,
 	}
-	_ = FILE_BLACKLIST //Bypass "not used" error
+	_ = FILE_BLACKLIST // Bypass "not used" error
 
 	loadConfig()
 	MIMEinit()
@@ -89,7 +89,7 @@ func main() {
 	}
 }
 
-func loadConfig() {  //load configuration from 'config' file
+func loadConfig() {  // Load configuration from 'config' file
 	SEPARATOR = make([]string, 2, 2)
 	configMap = make(map[string]string)
 	configKeys = make([]string, 0)
@@ -130,7 +130,7 @@ func loadConfig() {  //load configuration from 'config' file
 	SEPARATOR = strings.Split(configMap["VAR_SYMBOL"], ",")
 }
 
-func handleConnection(conn net.Conn) {  //handle connection
+func handleConnection(conn net.Conn) {  // Handle connection
 	defer conn.Close()
 
 	req := &Request{}
@@ -255,13 +255,13 @@ func sendHeaders(req *Request) {
 		status = &Status{code: 404, text: "Not Found"}
 	}
 
-	req.SendHeader(req.httpv+" "+strconv.Itoa(status.code))
-	req.SendHeader("Content-Type: "+req.contentType)
+	req.SendHeader(req.httpv + " " + strconv.Itoa(status.code))
+	req.SendHeader("Content-Type: " + req.contentType)
 	req.SendHeader("Accept-Ranges: bytes")
 }
 
 func send404 (req *Request) {
-	req.path = SERVER_PATH+"404.html"
+	req.path = SERVER_PATH + "404.html"
 	req.file, _ = os.Open(req.path) 
 	fi, _ := req.file.Stat()
 	req.fileSize = fi.Size()
@@ -270,8 +270,8 @@ func send404 (req *Request) {
 }
 
 func sendFile(req *Request) {
-    req.SendHeader("Content-Length: "+strconv.FormatInt(req.fileSize, 10))
-    req.SendHeader("") //END OF HEADERS
+    req.SendHeader("Content-Length: " + strconv.FormatInt(req.fileSize, 10))
+    req.SendHeader("") // END OF HEADERS
 
 	buf := make([]byte, SEND_BUF_SIZE)
 	var currentByte int64 = 0
@@ -291,8 +291,8 @@ func sendFile(req *Request) {
 }
 
 func sendTxt(req *Request, res *string) {
-    req.SendHeader("Content-Length: "+strconv.Itoa(len(*res)))
-    req.SendHeader("") //END OF HEADERS
+    req.SendHeader("Content-Length: " + strconv.Itoa(len(*res)))
+    req.SendHeader("") // END OF HEADERS
 
 	req.conn.Write([]byte(*res))
 }
@@ -311,13 +311,13 @@ func listDir(req *Request) {
 
 	files, dirs := getFilesInDir(req)
 	for _, f := range files {
-		req.template["files"] += "<div class='__temp_info_' type='file' data='"+f+"'></div>"
+		req.template["files"] += "<div class='__temp_info_' type='file' data='" + f + "'></div>"
 	}
 	for _, d := range dirs {
-		req.template["dirs"] += "<div class='__temp_info_' type='dir' data='"+d+"'></div>"
+		req.template["dirs"] += "<div class='__temp_info_' type='dir' data='" + d + "'></div>"
 	}
 
-	file, err := os.Open(SERVER_PATH+"list.html")
+	file, err := os.Open(SERVER_PATH + "list.html")
 	if err != nil {
 		logger.Log("ERROR", "Can't open list file")
 		return
@@ -330,7 +330,7 @@ func listDir(req *Request) {
 	}
 
 	for k, _ := range req.template {
-		lines = strings.Replace(lines, SEPARATOR[0]+k+SEPARATOR[1], req.template[k], -1)
+		lines = strings.Replace(lines, SEPARATOR[0] + k + SEPARATOR[1], req.template[k], -1)
 	}
 
 	sendTxt(req, &lines) 
@@ -340,7 +340,7 @@ func getFilesInDir(req *Request) ([]string, []string) {
 	files := make([]string, 0)
 	dirs := make([]string, 0)
 	
-	fList, _ := ioutil.ReadDir("./"+BASE_PATH+"/"+req.dir_path)
+	fList, _ := ioutil.ReadDir("./" + BASE_PATH + "/" + req.dir_path)
     for _, f := range fList {
         fName := f.Name()
         fName = strings.Replace(fName, "/", "", -1)
